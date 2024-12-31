@@ -1,0 +1,7 @@
+{
+  "name": "sofeng",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
