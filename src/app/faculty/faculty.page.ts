@@ -9,19 +9,30 @@ import { AuthService } from '../auth.service';
 import { EventsService, Event } from '../events.service.service';
 import { AlertController } from '@ionic/angular';
 
+interface Section {
+  id: number;
+  name: string;
+}
+
 @Component({
   selector: 'app-faculty',
   templateUrl: './faculty.page.html',
   styleUrls: ['./faculty.page.scss'],
-    standalone: true,
-    imports: [CommonModule, FormsModule, IonicModule]  // Import necessary modules
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]  // Import necessary modules
+
 })
+
 export class FacultyPage implements OnInit {
+
+  facultyName: string | null = null;
+
   facultyId: number | null = null;
   events: Event[] = [];
   showAddEventForm = false;
   editingEvent: Event | null = null;
-  
+  sections: Section[] = [];
+
   newEvent: Event = {
     id: 0, // This will be set by the database
     event_name: '',
@@ -36,23 +47,72 @@ export class FacultyPage implements OnInit {
     private authService: AuthService,
     private eventsService: EventsService,
     private alertController: AlertController
-  ) {}
+  ) { }
+
+  // Add to FacultyPage class ARCHIVEEEEE
+  archivedEvents: Event[] = [];
+  selectedTab = 'active';
+
+  loadArchivedEvents() {
+    if (this.facultyId) {
+      this.eventsService.getArchivedEvents(this.facultyId).subscribe(
+        response => {
+          if (response.success) {
+            this.archivedEvents = response.events;
+          }
+        },
+        error => console.error('Error loading archived events:', error)
+      );
+    }
+  }
+  // ARCHIVE END
 
   ngOnInit() {
+    this.loadArchivedEvents();
+    console.log('FacultyPage initialized');
+    this.authService.facultyName$.subscribe(name => {
+      console.log('Received faculty name:', name); // Debug faculty name
+      this.facultyName = name;
+    });
+    this.loadSections();
     this.authService.facultyId$.subscribe(id => {
       if (id) {
         this.facultyId = id;
         this.loadEvents();
       }
     });
+
+  }
+  onTabChange(event: any) {
+    this.selectedTab = event.detail.value;
+  }
+  loadSections() {
+    console.log('Loading sections...');
+    this.eventsService.getSections().subscribe(
+      response => {
+        console.log('Sections loaded:', response);
+        if (response.success) {
+          this.sections = response.sections;
+        } else {
+          console.error('Failed to load sections:', response);
+        }
+      },
+      error => {
+        console.error('Error loading sections:', error);
+      }
+    );
   }
 
   loadEvents() {
+    console.log('Loading events for faculty ID:', this.facultyId);
     if (this.facultyId) {
       this.eventsService.getFacultyEvents(this.facultyId).subscribe(
         response => {
+          console.log('Events loaded:', response);
           if (response.success) {
             this.events = response.events;
+          } else {
+            console.error('Failed to load events:', response);
           }
         },
         error => {
@@ -89,8 +149,8 @@ export class FacultyPage implements OnInit {
       this.eventsService.updateEvent(this.editingEvent.id, this.editingEvent).subscribe(
         response => {
           if (response.success) {
-            this.loadEvents();
-            this.editingEvent = null;
+            this.loadEvents(); // Refresh the list
+            this.editingEvent = null; // Exit editing mode
           }
         },
         error => {
@@ -142,6 +202,7 @@ export class FacultyPage implements OnInit {
   }
 
   startEdit(event: Event) {
+    console.log("napindot");
     this.editingEvent = { ...event };
   }
 

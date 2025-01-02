@@ -1,93 +1,125 @@
-<!-- faculty.page.html -->
 <ion-header>
   <ion-toolbar>
-    <ion-title>Faculty Dashboard</ion-title>
+    <ion-title>Welcome, {{ facultyName }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-button (click)="showAddEventForm = !showAddEventForm" expand="block" class="ion-margin-bottom">
-    {{ showAddEventForm ? 'Cancel' : 'Add New Event' }}
-  </ion-button>
+  <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange($event)">
+    <ion-segment-button value="active">
+      <ion-label>Active Events</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="archived">
+      <ion-label>Archived Events</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 
-  <!-- Add Event Form -->
-  <ion-card *ngIf="showAddEventForm">
-    <ion-card-header>
-      <ion-card-title>Add New Event</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-label position="floating">Event Name</ion-label>
-        <ion-input [(ngModel)]="newEvent.event_name"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">Date</ion-label>
-        <ion-datetime display-format="MMM DD, YYYY" [(ngModel)]="newEvent.date"></ion-datetime>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">Student Name</ion-label>
-        <ion-input [(ngModel)]="newEvent.student_name"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">Section ID</ion-label>
-        <ion-input type="number" [(ngModel)]="newEvent.section_id"></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="addEvent()" class="ion-margin-top">
-        Save Event
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+  <div *ngIf="selectedTab === 'active'">
+    <ion-button (click)="showAddEventForm = !showAddEventForm" expand="block" class="ion-margin-bottom">
+      {{ showAddEventForm ? 'Cancel' : 'Add New Event' }}
+    </ion-button>
 
-  <!-- Events List -->
-  <ion-list>
-    <ion-item-sliding *ngFor="let event of events">
-      <!-- Normal View -->
-      <ion-item *ngIf="!editingEvent || editingEvent.id !== event.id">
+    <!-- Add Event Form -->
+    <ion-card *ngIf="showAddEventForm">
+      <ion-card-header>
+        <ion-card-title>Add New Event</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Event Name</ion-label>
+          <ion-input [(ngModel)]="newEvent.event_name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Date</ion-label>
+          <ion-datetime display-format="MMM DD, YYYY" [(ngModel)]="newEvent.date"></ion-datetime>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Student Name</ion-label>
+          <ion-input [(ngModel)]="newEvent.student_name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Section</ion-label>
+          <ion-select [(ngModel)]="newEvent.section_id">
+            <ion-select-option *ngFor="let section of sections" [value]="section.id">
+              {{section.name}}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-button expand="block" (click)="addEvent()" class="ion-margin-top">
+          Save Event
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Edit Event Form -->
+    <ion-card *ngIf="editingEvent">
+      <ion-card-header>
+        <ion-card-title>Edit Event</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Event Name</ion-label>
+          <ion-input [(ngModel)]="editingEvent.event_name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Date</ion-label>
+          <ion-datetime display-format="MMM DD, YYYY" [(ngModel)]="editingEvent.date"></ion-datetime>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Student Name</ion-label>
+          <ion-input [(ngModel)]="editingEvent.student_name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Section</ion-label>
+          <ion-select [(ngModel)]="editingEvent.section_id">
+            <ion-select-option *ngFor="let section of sections" [value]="section.id">
+              {{section.name}}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-button expand="block" (click)="updateEvent()" class="ion-margin-top">
+          Update Event
+        </ion-button>
+        <ion-button expand="block" (click)="cancelEdit()" color="medium" class="ion-margin-top">
+          Cancel
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Events List -->
+    <ion-list>
+      <ion-item *ngFor="let event of events">
         <ion-label>
           <h2>{{ event.event_name }}</h2>
           <p>Date: {{ event.date | date }}</p>
           <p>Student: {{ event.student_name }}</p>
-          <p>Section: {{ event.section_id }}</p>
+          <p>Section: {{ event.section_name }}</p>
         </ion-label>
+        <ion-button slot="end" color="primary" (click)="startEdit(event)">
+          <ion-icon name="create"></ion-icon>
+        </ion-button>
+        <ion-button slot="end" color="danger" (click)="deleteEvent(event.id)">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
       </ion-item>
+    </ion-list>
 
-      <!-- Edit View -->
-      <ion-item *ngIf="editingEvent && editingEvent.id === event.id">
+    <ion-text color="medium" *ngIf="events.length === 0" class="ion-text-center">
+      <p>No events found</p>
+    </ion-text>
+  </div>
+  <!-- Archived events -->
+  <div *ngIf="selectedTab === 'archived'">
+    <ion-list>
+      <ion-item *ngFor="let event of archivedEvents">
         <ion-label>
-          <ion-item>
-            <ion-label position="floating">Event Name</ion-label>
-            <ion-input [(ngModel)]="editingEvent!.event_name"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Date</ion-label>
-            <ion-datetime display-format="MMM DD, YYYY" [(ngModel)]="editingEvent!.date"></ion-datetime>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Student Name</ion-label>
-            <ion-input [(ngModel)]="editingEvent!.student_name"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Section ID</ion-label>
-            <ion-input type="number" [(ngModel)]="editingEvent!.section_id"></ion-input>
-          </ion-item>
-          <ion-button expand="block" (click)="updateEvent()" class="ion-margin-top">Save</ion-button>
-          <ion-button expand="block" (click)="cancelEdit()" color="medium">Cancel</ion-button>
+          <h2>{{ event.event_name }}</h2>
+          <p>Date: {{ event.date | date }}</p>
+          <p>Student: {{ event.student_name }}</p>
+          <p>Section: {{ event.section_name }}</p>
+          <p><small>Archived: {{ event.archived_date | date }}</small></p>
         </ion-label>
       </ion-item>
-
-      <!-- Sliding Options -->
-      <ion-item-options side="end">
-        <ion-item-option (click)="startEdit(event)" color="primary">
-          <ion-icon slot="icon-only" name="create"></ion-icon>
-        </ion-item-option>
-        <ion-item-option (click)="deleteEvent(event.id)" color="danger">
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-  </ion-list>
-
-  <ion-text color="medium" *ngIf="events.length === 0" class="ion-text-center">
-    <p>No events found</p>
-  </ion-text>
+    </ion-list>
+  </div>
 </ion-content>

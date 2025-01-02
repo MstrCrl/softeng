@@ -10,6 +10,8 @@ interface LoginResponse {
   role?: string;
   faculty_id?: number;
   user_id?: number;
+  username: string;
+  faculty_name?: string;
 }
 
 @Injectable({
@@ -17,8 +19,12 @@ interface LoginResponse {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api/login';
+
   private facultyIdSubject = new BehaviorSubject<number | null>(null);
+  private facultyNameSubject = new BehaviorSubject<string | null>(null);
+  
   facultyId$ = this.facultyIdSubject.asObservable();
+  facultyName$ = this.facultyNameSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -26,8 +32,13 @@ export class AuthService {
     return this.http.post<LoginResponse>(this.apiUrl, { username, password })
       .pipe(
         tap(response => {
-          if (response.success && response.faculty_id) {
-            this.facultyIdSubject.next(response.faculty_id);
+          if (response.success) {
+            if (response.faculty_id) {
+              this.facultyIdSubject.next(response.faculty_id);
+            }
+            if (response.faculty_name) {
+              this.facultyNameSubject.next(response.faculty_name); // Set the faculty name
+            }
           }
         })
       );

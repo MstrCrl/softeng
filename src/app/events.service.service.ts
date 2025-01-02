@@ -10,6 +10,8 @@ export interface Event {
   faculty_id: number;
   student_name: string;
   section_id: number;
+  section_name?: string;
+  archived_date?: string; // Added this field
 }
 
 @Injectable({
@@ -34,5 +36,12 @@ export class EventsService {
 
   deleteEvent(eventId: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/events/${eventId}`);
+  }
+  
+  getSections(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/sections`);
+  }
+  getArchivedEvents(facultyId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/archived-events/${facultyId}`);
   }
 }
