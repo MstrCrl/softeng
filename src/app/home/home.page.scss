@@ -1,27 +1,69 @@
-#container {
+ion-menu::part(backdrop) {
+  background-color: rgba(25, 0, 255, 0.5);
+}
+
+ion-menu::part(container) {
+  border-radius: 0 20px 20px 0;
+
+  box-shadow: 4px 0px 16px rgba(25, 0, 255, 0.5);
+}
+
+ion-content {
+  .events-container {
+    margin: 0 auto; // Centers the list container
+    max-width: 600px; // Sets a maximum width for the container
+    padding: 10px; // Adds padding around the container
+
+    .event-item {
+      margin-bottom: 16px; // Adds space between events
+      border: 1px solid #95b6ff; // Adds a border around each event item
+      border-radius: 8px; // Rounds the corners of the borders
+      padding: 16px; // Adds padding inside each event box
+      background-color: #ffffff; // Light background for event items
+      box-shadow: 0 2px 5px rgba(0, 205, 241, 0.4); // Light shadow to give depth
+
+      .event-label {
+        display: block;
+        font-family: Arial, sans-serif;
+
+        .faculty-name {
+          font-size: 14px;
+          color: #888; // Lighter color for faculty name
+          margin-bottom: 8px; // Space after faculty name
+        }
+
+        .event-title {
+          font-size: 18px;
+          font-weight: bold;
+          color: #333; // Dark color for the event title
+          margin-bottom: 8px; // Space after event title
+        }
+
+        .event-time {
+          font-size: 14px;
+          color: #555; // Medium gray for the event date
+          margin-bottom: 8px; // Space after the event time
+        }
+
+        .section-affected {
+          font-size: 14px;
+          color: #333; // Dark color for section
+        }
+      }
+    }
+  }
+}
+
+.selected-section {
   text-align: center;
+  font-size: 25px;
+  color: #333; // Adjust color to match the theme
+  padding: 14px 0 9px 0;
+  --background-color: #fff;
+  background: #fff;
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
+  p {
+    margin: 0;
+    font-weight: bold;
+  }
 }
