@@ -1,3 +1,4 @@
+// admin.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -30,6 +31,7 @@ export interface NewFaculty {
 })
 export class AdminService {
   private baseUrl = 'http://localhost:3000/api';
+  private readonly PROGRAM_CHAIR_ID = 16  ;
 
   constructor(private http: HttpClient) {}
     
@@ -58,8 +60,13 @@ export class AdminService {
     return this.http.get(`${this.baseUrl}/all-archived-events`);
   }
 
-  addEventAsAdmin(event: Omit<Event, 'id'>): Observable<any> {
-    return this.http.post(`${this.baseUrl}/admin/events`, event);
+  addEventAsAdmin(event: Partial<Event>): Observable<any> {
+    // Always set the faculty_id to Program Chair
+    const eventWithProgramChair = {
+      ...event,
+      faculty_id: this.PROGRAM_CHAIR_ID
+    };
+    return this.http.post(`${this.baseUrl}/events`, eventWithProgramChair);
   }
 
   updateEventAsAdmin(eventId: number, event: Partial<Event>): Observable<any> {

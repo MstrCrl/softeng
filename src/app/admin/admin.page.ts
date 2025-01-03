@@ -1,3 +1,4 @@
+// admin.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -42,9 +43,9 @@ export class AdminPage implements OnInit {
   newEvent: Event = {
     id: 0,
     event_name: '',
-    date: '',
-    faculty_id: 0,
-    student_name: '',
+    date: '2025-01-03',
+    faculty_id: 16,
+    student_name: 'All',
     section_id: 0
   };
 
@@ -91,7 +92,11 @@ export class AdminPage implements OnInit {
             this.resetForms();
           }
         },
-        error => console.error('Error adding faculty:', error)
+        error => {
+          console.error('Error adding faculty:', error);
+          this.presentErrorAlert('Failed to add faculty member. ' + 
+            (error.error?.details || 'Please try again.'));
+        }
       );
     }
   }
@@ -184,6 +189,16 @@ export class AdminPage implements OnInit {
   }
 
   async addEvent() {
+    if (!this.newEvent.event_name || !this.newEvent.date || !this.newEvent.section_id) {
+      const alert = await this.alertController.create({
+        header: 'Missing Information',
+        message: 'Please fill in all required fields',
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
+
     this.adminService.addEventAsAdmin(this.newEvent).subscribe(
       response => {
         if (response.success) {
@@ -192,8 +207,31 @@ export class AdminPage implements OnInit {
           this.resetNewEvent();
         }
       },
-      error => console.error('Error adding event:', error)
+      error => {
+        console.error('Error adding event:', error);
+        this.presentErrorAlert('Failed to add event. Please try again.');
+      }
     );
+  }
+
+  resetNewEvent() {
+    this.newEvent = {
+      id: 0,
+      event_name: '',
+      date: '',
+      faculty_id: 16, // Always reset to Program Chair ID
+      student_name: '',
+      section_id: 0
+    };
+  }
+  
+  async presentErrorAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: message,
+      buttons: ['OK']
+    });
+    await alert.present();
   }
 
   async updateEvent() {
@@ -238,16 +276,6 @@ export class AdminPage implements OnInit {
     await alert.present();
   }
 
-  resetNewEvent() {
-    this.newEvent = {
-      id: 0,
-      event_name: '',
-      date: '',
-      faculty_id: 0,
-      student_name: '',
-      section_id: 0
-    };
-  }
 
   startEdit(event: Event) {
     this.editingEvent = { ...event };

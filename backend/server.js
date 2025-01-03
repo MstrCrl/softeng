@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
@@ -275,17 +274,33 @@ app.post('/api/users/student', (req, res) => {
 });
 
 // Add new faculty using stored procedure
+// Add new faculty using stored procedure
 app.post('/api/users/faculty', (req, res) => {
   const { name, username, password } = req.body;
   
+  console.log('Attempting to add faculty:', { name, username }); // Log attempt
+  
+  if (!name || !username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+
   const query = 'CALL AddFaculty(?, ?, ?)';
   db.query(query, [name, username, password], (err, result) => {
     if (err) {
-      console.error('Error adding faculty:', err);
+      console.error('Detailed faculty error:', {
+        code: err.code,
+        errno: err.errno,
+        sqlMessage: err.sqlMessage,
+        sqlState: err.sqlState,
+        sql: err.sql
+      });
       return res.status(500).json({ 
         success: false, 
         message: 'Error adding faculty',
-        error: err.message 
+        details: err.sqlMessage
       });
     }
     res.json({ 
@@ -359,14 +374,38 @@ app.get('/api/all-archived-events', (req, res) => {
 // Admin event management endpoints
 app.post('/api/admin/events', (req, res) => {
   const { event_name, date, faculty_id, student_name, section_id } = req.body;
-  const query = 'INSERT INTO events (event_name, date, faculty_id, student_name, section_id) VALUES (?, ?, ?, ?, ?)';
   
-  db.query(query, [event_name, date, faculty_id, student_name, section_id], (err, result) => {
+  // Validate required fields
+  if (!event_name || !date || !faculty_id || !section_id) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Missing required fields' 
+    });
+  }
+
+  // Format date to MySQL format
+  const formattedDate = new Date(date).toISOString().split('T')[0];
+  
+  const query = `
+    INSERT INTO events 
+    (event_name, date, faculty_id, student_name, section_id) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  
+  db.query(query, [event_name, formattedDate, faculty_id, student_name, section_id], (err, result) => {
     if (err) {
       console.error('Error adding event:', err);
-      return res.status(500).json({ success: false, message: 'Error adding event' });
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error adding event',
+        error: err.message 
+      });
     }
-    res.json({ success: true, message: 'Event added successfully', eventId: result.insertId });
+    res.json({ 
+      success: true, 
+      message: 'Event added successfully', 
+      eventId: result.insertId 
+    });
   });
 });
 

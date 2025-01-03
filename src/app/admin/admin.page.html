@@ -1,3 +1,4 @@
+<!-- admin.page.html -->
 <ion-header>
   <ion-toolbar>
     <ion-title>Admin Panel</ion-title>
@@ -136,19 +137,16 @@
           </ion-item>
           <ion-item>
             <ion-label position="floating">Date</ion-label>
-            <ion-input type="date" [(ngModel)]="newEvent.date"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Faculty</ion-label>
-            <ion-select [(ngModel)]="newEvent.faculty_id">
-              <ion-select-option *ngFor="let user of facultyUsers" [value]="user.user_id">
-                {{user.name}}
-              </ion-select-option>
-            </ion-select>
+            <ion-input 
+              type="date" 
+              [(ngModel)]="newEvent.date" 
+              placeholder=" " 
+              value="1970-01-01">
+            </ion-input>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Student Name</ion-label>
-            <ion-input [(ngModel)]="newEvent.student_name"></ion-input>
+            <ion-input [(ngModel)]="newEvent.student_name" value="all"></ion-input>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Section</ion-label>
@@ -158,7 +156,7 @@
               </ion-select-option>
             </ion-select>
           </ion-item>
-
+        
           <ion-button expand="block" (click)="addEvent()" color="primary">
             Save Event
           </ion-button>
