@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -52,6 +53,52 @@ export class FacultyPage implements OnInit {
   // Add to FacultyPage class ARCHIVEEEEE
   archivedEvents: Event[] = [];
   selectedTab = 'active';
+  
+  // ARCHIVE END
+
+  ngOnInit() {
+    console.log('FacultyPage initialized');
+    
+    // First check and archive past events
+    this.eventsService.checkAndArchiveEvents().subscribe(
+      response => {
+        if (response.success) {
+          console.log(`${response.archivedCount} events archived`);
+          
+          // Then load everything else
+          this.authService.facultyName$.subscribe(name => {
+            console.log('Received faculty name:', name);
+            this.facultyName = name;
+          });
+          
+          this.loadSections();
+          
+          this.authService.facultyId$.subscribe(id => {
+            if (id) {
+              this.facultyId = id;
+              this.loadEvents();
+              this.loadArchivedEvents();
+            }
+          });
+        }
+      },
+      error => {
+        console.error('Error checking archives:', error);
+        // Still load the page even if archiving fails
+        this.authService.facultyName$.subscribe(name => {
+          this.facultyName = name;
+        });
+        this.loadSections();
+        this.authService.facultyId$.subscribe(id => {
+          if (id) {
+            this.facultyId = id;
+            this.loadEvents();
+            this.loadArchivedEvents();
+          }
+        });
+      }
+    );
+  }
 
   loadArchivedEvents() {
     if (this.facultyId) {
@@ -65,24 +112,7 @@ export class FacultyPage implements OnInit {
       );
     }
   }
-  // ARCHIVE END
-
-  ngOnInit() {
-    this.loadArchivedEvents();
-    console.log('FacultyPage initialized');
-    this.authService.facultyName$.subscribe(name => {
-      console.log('Received faculty name:', name); // Debug faculty name
-      this.facultyName = name;
-    });
-    this.loadSections();
-    this.authService.facultyId$.subscribe(id => {
-      if (id) {
-        this.facultyId = id;
-        this.loadEvents();
-      }
-    });
-
-  }
+  
   onTabChange(event: any) {
     this.selectedTab = event.detail.value;
   }

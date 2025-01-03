@@ -5,12 +5,12 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange($event)">
+  <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange($event)" class="padding-sa-baba">
     <ion-segment-button value="active">
       <ion-label>Active Events</ion-label>
     </ion-segment-button>
     <ion-segment-button value="archived">
-      <ion-label>Archived Events</ion-label>
+      <ion-label>Archived</ion-label>
     </ion-segment-button>
   </ion-segment>
 
@@ -52,7 +52,7 @@
     </ion-card>
 
     <!-- Edit Event Form -->
-    <ion-card *ngIf="editingEvent">
+    <ion-card *ngIf="editingEvent" class="edit-event-card">
       <ion-card-header>
         <ion-card-title>Edit Event</ion-card-title>
       </ion-card-header>
@@ -88,7 +88,7 @@
 
     <!-- Events List -->
     <ion-list>
-      <ion-item *ngFor="let event of events">
+      <ion-item *ngFor="let event of events" class="event-item-container">
         <ion-label>
           <h2>{{ event.event_name }}</h2>
           <p>Date: {{ event.date | date }}</p>
@@ -109,9 +109,9 @@
     </ion-text>
   </div>
   <!-- Archived events -->
-  <div *ngIf="selectedTab === 'archived'">
-    <ion-list>
-      <ion-item *ngFor="let event of archivedEvents">
+  <div *ngIf="selectedTab === 'archived'" class="content">
+    <ion-list class="events-container">
+      <ion-item *ngFor="let event of archivedEvents" class="event-item-container">
         <ion-label>
           <h2>{{ event.event_name }}</h2>
           <p>Date: {{ event.date | date }}</p>

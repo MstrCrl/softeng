@@ -1,4 +1,4 @@
-// src/app/services/events.service.ts
+// src/app/services/events.service.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -12,6 +12,7 @@ export interface Event {
   section_id: number;
   section_name?: string;
   archived_date?: string; // Added this field
+  faculty_name?: string; // Added this field
 }
 
 @Injectable({
@@ -22,6 +23,10 @@ export class EventsService {
 
   constructor(private http: HttpClient) {}
 
+  checkAndArchiveEvents(): Observable<any> {
+    return this.http.post(`${this.baseUrl}/check-archive`, {});
+  }
+  
   getFacultyEvents(facultyId: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/faculty-events/${facultyId}`);
   }

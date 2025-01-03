@@ -30,9 +30,15 @@ export class LoginPage {
           console.log('Login successful, role:', response.role);
           console.log('Faculty ID:', response.faculty_id);
           
-          if (response.role === 'student') {
+          if (response.role === 'student') 
+          {
             this.router.navigate(['/home']);
-          } else {
+          }
+          else if (response.role === 'admin') {
+            this.router.navigate(['/admin']);
+          }
+          else 
+          {
             // Pass faculty_id as a query parameter
             this.router.navigate(['/faculty'], {
               queryParams: { id: response.faculty_id }
