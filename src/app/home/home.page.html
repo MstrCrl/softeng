@@ -5,13 +5,14 @@
         <ion-title>ACEchedule</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding">
+    <ion-content class="ion-padding menu-content">
       <!-- section list -->
       <ion-list>
-        <ion-item (click)="showAllEvents()" (click)="selectSection(null)">
+        <ion-item (click)="showAllEvents()" (click)="selectSection(null)" style="color: black;">
           Home
         </ion-item>
-        <ion-item *ngFor="let section of sections" (click)="showEventsBySection(section.id)" (click)="selectSection(section)">
+        <ion-item *ngFor="let section of sections" (click)="showEventsBySection(section.id)"
+          (click)="selectSection(section)" style="color: black;">
           BS Computer Science - {{ section.name }}
         </ion-item>
       </ion-list>
@@ -52,25 +53,17 @@
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
-        
+
         <ion-content class="ion-padding">
           <ion-list>
             <ion-item>
               <ion-label position="stacked">Name</ion-label>
-              <ion-input
-                [readonly]="!isEditing"
-                [(ngModel)]="profile.name"
-                placeholder="Enter your name"
-              ></ion-input>
+              <ion-input [readonly]="!isEditing" [(ngModel)]="profile.name" placeholder="Enter your name"></ion-input>
             </ion-item>
 
             <ion-item>
               <ion-label position="stacked">Section</ion-label>
-              <ion-select
-                [disabled]="!isEditing"
-                [(ngModel)]="profile.section_id"
-                placeholder="Select section"
-              >
+              <ion-select [disabled]="!isEditing" [(ngModel)]="profile.section_id" placeholder="Select section">
                 <ion-select-option *ngFor="let section of sections" [value]="section.id">
                   BSCS {{ section.name }}
                 </ion-select-option>
@@ -79,22 +72,24 @@
 
             <ion-item>
               <ion-label position="stacked">Username</ion-label>
-              <ion-input
-                [readonly]="!isEditing"
-                [(ngModel)]="profile.username"
-                placeholder="Enter username"
-              ></ion-input>
+              <ion-input [readonly]="!isEditing" [(ngModel)]="profile.username"
+                placeholder="Enter username"></ion-input>
             </ion-item>
 
             <ion-item>
               <ion-label position="stacked">Password</ion-label>
-              <ion-input
-                type="password"
-                [readonly]="!isEditing"
-                [(ngModel)]="profile.password"
-                placeholder="Enter password"
-              ></ion-input>
+              <ion-input type="password" [readonly]="!isEditing" [(ngModel)]="profile.password"
+                placeholder="Enter password"></ion-input>
             </ion-item>
+              <ion-button 
+                (click)="logout()" 
+                color="danger" 
+                expand="full"
+                shape="round"
+                fill="solid"
+                class="logout-button">
+                Logout
+              </ion-button>
           </ion-list>
         </ion-content>
       </ng-template>
@@ -114,14 +109,14 @@
             <h2 class="event-title">{{ event.event_name }}</h2>
             <p class="event-time">{{ event.date }}</p>
             <p class="section-affected">Section: {{ event.section_name }}</p>
-            
+
             <!-- Comments section -->
             <div class="comments-section">
               <ion-button fill="clear" size="small" (click)="toggleComments(event.id)">
                 <ion-icon [name]="expandedEvents.has(event.id) ? 'chevron-up' : 'chevron-down'"></ion-icon>
                 Comments
               </ion-button>
-              
+
               <div *ngIf="expandedEvents.has(event.id)" class="comments-container">
                 <!-- Existing comments -->
                 <ion-list>
@@ -133,19 +128,13 @@
                     </ion-label>
                   </ion-item>
                 </ion-list>
-      
+
                 <!-- New comment input -->
                 <ion-item>
-                  <ion-input 
-                    [(ngModel)]="newComments[event.id]" 
-                    placeholder="Add a comment..."
-                    class="comment-input">
+                  <ion-input [(ngModel)]="newComments[event.id]" placeholder="Add a comment..." class="comment-input">
                   </ion-input>
-                  <ion-button 
-                    slot="end" 
-                    fill="clear" 
-                    (click)="addComment(event.id)"
-                    [disabled]="!newComments[event.id]?.trim()">
+                  <ion-button slot="end" fill="clear" (click)="addComment(event.id)"
+                    [disabled]="!newComments[event.id] || !newComments[event.id].trim()">
                     <ion-icon name="send"></ion-icon>
                   </ion-button>
                 </ion-item>
@@ -154,7 +143,7 @@
           </ion-label>
         </ion-item>
       </ion-list>
-      
+
     </ion-content>
   </div>
 </ion-app>

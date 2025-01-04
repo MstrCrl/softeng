@@ -1,0 +1,42 @@
+.admin-content {
+    background: #f4f5f7;
+  
+    .segment-buttons {
+  
+      ion-segment-button {
+        font-weight: bold;
+  
+        &.segment-button-checked {
+          // background: #007bff;
+          // color: white;
+        }
+      }
+    }
+  
+    .admin-section {
+      margin: 1rem, 0.5rem, 1rem, 0.5rem;
+  
+      ion-card {
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  
+        ion-card-header {
+          background: #007bff;
+          color: white;
+          text-align: center;
+        }
+      }
+  
+      .user-list {
+        margin-top: 1rem;
+      }
+    }
+  
+    ion-button {
+      margin-top: 0.5rem;
+  
+      ion-icon {
+        margin-right: 0.5rem;
+      }
+    }
+  }

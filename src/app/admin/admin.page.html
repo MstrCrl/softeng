@@ -1,12 +1,23 @@
 <!-- admin.page.html -->
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Admin Panel</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <ion-icon name="settings-outline"></ion-icon>
+      Admin Panel
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" size="small">
+        Logout
+        <ion-icon name="log-out-outline"></ion-icon>
+        
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-segment [(ngModel)]="selectedSegment">
+
+<ion-content class="ion-padding admin-content">
+  <ion-segment [(ngModel)]="selectedSegment" color="tertiary" class="segment-buttons">
     <ion-segment-button value="users">
       <ion-label>Users</ion-label>
     </ion-segment-button>
@@ -19,107 +30,117 @@
   </ion-segment>
 
   <!-- Users Section -->
-  <div *ngIf="selectedSegment === 'users'">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>User Management</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-button expand="block" (click)="showAddUserForm = true" *ngIf="!showAddUserForm">
-          Add New User
-        </ion-button>
+ <!-- Users Section -->
+ <div *ngIf="selectedSegment === 'users'" class="admin-section">
+  <ion-card>
+    <ion-card-header color="tertiary">
+      <ion-card-title style="color: black; font-size: 25px;">User Management</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button expand="block" (click)="showAddUserForm = true" *ngIf="!showAddUserForm" color="primary">
+        <ion-icon name="person-add-outline"></ion-icon>
+        Add New User
+      </ion-button>
 
-        <!-- Add User Form -->
-        <div *ngIf="showAddUserForm">
+      <!-- Add User Form -->
+      <div *ngIf="showAddUserForm">
+        <ion-item>
+          <ion-label position="floating">User Type</ion-label>
+          <ion-select [(ngModel)]="userType" (ionChange)="onUserTypeChange()" interface="popover">
+            <ion-select-option value="student">Student</ion-select-option>
+            <ion-select-option value="faculty">Faculty</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Student Form -->
+        <form *ngIf="userType === 'student'">
           <ion-item>
-            <ion-select [(ngModel)]="userType" (ionChange)="onUserTypeChange()">
-              <ion-select-option value="student">Student</ion-select-option>
-              <ion-select-option value="faculty">Faculty</ion-select-option>
+            <ion-label position="floating">Name</ion-label>
+            <ion-input [(ngModel)]="newStudent.name" name="name"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Section</ion-label>
+            <ion-select [(ngModel)]="newStudent.section_id" name="section" interface="popover">
+              <ion-select-option *ngFor="let section of sections" [value]="section.id">
+                {{section.name}}
+              </ion-select-option>
             </ion-select>
           </ion-item>
+          <ion-item>
+            <ion-label position="floating">Username</ion-label>
+            <ion-input [(ngModel)]="newStudent.username" name="username"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" [(ngModel)]="newStudent.password" name="password"></ion-input>
+          </ion-item>
+        </form>
 
-          <!-- Student Form -->
-          <form *ngIf="userType === 'student'">
-            <ion-item>
-              <ion-label position="floating">Name</ion-label>
-              <ion-input [(ngModel)]="newStudent.name" name="name"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating">Section</ion-label>
-              <ion-select [(ngModel)]="newStudent.section_id" name="section">
-                <ion-select-option *ngFor="let section of sections" [value]="section.id">
-                  {{section.name}}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating">Username</ion-label>
-              <ion-input [(ngModel)]="newStudent.username" name="username"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating">Password</ion-label>
-              <ion-input type="password" [(ngModel)]="newStudent.password" name="password"></ion-input>
-            </ion-item>
-          </form>
-
-          <!-- Faculty Form -->
-          <div *ngIf="userType === 'faculty'">
-            <ion-item>
-              <ion-input [(ngModel)]="newFaculty.name" label="Name" labelPlacement="floating"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input [(ngModel)]="newFaculty.username" label="Username" labelPlacement="floating"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input [(ngModel)]="newFaculty.password" type="password" label="Password" labelPlacement="floating"></ion-input>
-            </ion-item>
-          </div>
-
-          <ion-button expand="block" (click)="addUser()" color="primary">
-            Save User
-          </ion-button>
-          <ion-button expand="block" (click)="showAddUserForm = false" color="medium">
-            Cancel
-          </ion-button>
+        <!-- Faculty Form -->
+        <div *ngIf="userType === 'faculty'">
+          <ion-item>
+            <ion-label position="floating">Name</ion-label>
+            <ion-input [(ngModel)]="newFaculty.name" name="name"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Username</ion-label>
+            <ion-input [(ngModel)]="newFaculty.username" name="username"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" [(ngModel)]="newFaculty.password" name="password"></ion-input>
+          </ion-item>
         </div>
 
-        <!-- User Lists -->
-        <ion-list>
-          <ion-list-header>
-            <ion-label>Faculty Members</ion-label>
-          </ion-list-header>
-          <ion-item *ngFor="let user of facultyUsers">
-            <ion-label>
-              <h2>{{user.name}}</h2>
-              <p>Username: {{user.username}}</p>
-            </ion-label>
-            <ion-button slot="end" color="danger" (click)="deleteUser(user.user_id)">
-              Delete
-            </ion-button>
-          </ion-item>
-        </ion-list>
+        <ion-button expand="block" (click)="addUser()" color="success">
+          <ion-icon name="save-outline"></ion-icon>
+          Save User
+        </ion-button>
+        <ion-button expand="block" (click)="showAddUserForm = false" color="medium">
+          <ion-icon name="close-outline"></ion-icon>
+          Cancel
+        </ion-button>
+      </div>
 
-        <ion-list>
-          <ion-list-header>
-            <ion-label>Students</ion-label>
-          </ion-list-header>
-          <ion-item *ngFor="let user of studentUsers">
-            <ion-label>
-              <h2>{{user.name}}</h2>
-              <p>Username: {{user.username}}</p>
-              <p>Section: {{user.section_name}}</p>
-            </ion-label>
-            <ion-button slot="end" color="danger" (click)="deleteUser(user.user_id)">
-              Delete
-            </ion-button>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-  </div>
+      <!-- User Lists -->
+      <ion-list class="user-list">
+        <ion-list-header color="light">
+          <ion-label>Faculty Members</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let user of facultyUsers">
+          <ion-label>
+            <h2>{{user.name}}</h2>
+            <p>Username: {{user.username}}</p>
+          </ion-label>
+          <ion-button slot="end" color="danger" (click)="deleteUser(user.user_id)">
+            <ion-icon name="trash-outline"></ion-icon>
+            Delete
+          </ion-button>
+        </ion-item>
+      </ion-list>
+
+      <ion-list class="user-list">
+        <ion-list-header color="light">
+          <ion-label>Students</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let user of studentUsers">
+          <ion-label>
+            <h2>{{user.name}}</h2>
+            <p>Username: {{user.username}}</p>
+            <p>Section: {{user.section_name}}</p>
+          </ion-label>
+          <ion-button slot="end" color="danger" (click)="deleteUser(user.user_id)">
+            <ion-icon name="trash-outline"></ion-icon>
+            Delete
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</div>
 
   <!-- Events Section -->
-  <div *ngIf="selectedSegment === 'events'">
+  <div *ngIf="selectedSegment === 'events'" class="admin-section">
     <ion-card>
       <ion-card-header>
         <ion-card-title>Active Events</ion-card-title>
@@ -137,12 +158,9 @@
           </ion-item>
           <ion-item>
             <ion-label position="floating">Date</ion-label>
-            <ion-input 
-              type="date" 
-              [(ngModel)]="newEvent.date" 
-              placeholder=" " 
-              value="1970-01-01">
-            </ion-input>
+            <ion-datetime display-format="MMM DD, YYYY"
+              [(ngModel)]="newEvent.date">
+            </ion-datetime >
           </ion-item>
           <ion-item>
             <ion-label position="floating">Student Name</ion-label>
@@ -215,7 +233,7 @@
               </ion-button>
             </div>
 
-            <div slot="end" *ngIf="!editingEvent || editingEvent.id !== event.id">
+            <div  *ngIf="!editingEvent || editingEvent.id !== event.id">
               <ion-button color="primary" (click)="startEdit(event)">
                 Edit
               </ion-button>
@@ -230,7 +248,7 @@
   </div>
 
   <!-- Archives Section -->
-  <div *ngIf="selectedSegment === 'archives'">
+  <div *ngIf="selectedSegment === 'archives'" class="admin-section">
     <ion-card>
       <ion-card-header>
         <ion-card-title>Archived Events</ion-card-title>

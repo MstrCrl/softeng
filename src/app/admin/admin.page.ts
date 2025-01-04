@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { AdminService, User, NewStudent, NewFaculty } from '../admin.service';
 import { EventsService, Event } from '../events.service.service';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -52,7 +54,9 @@ export class AdminPage implements OnInit {
   constructor(
     private adminService: AdminService,
     private eventsService: EventsService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private authService: AuthService,
+     private router: Router
   ) {}
 
   ngOnInit() {
@@ -65,7 +69,10 @@ export class AdminPage implements OnInit {
     this.loadEvents();
     this.loadArchivedEvents();
   }
-
+  logout() {
+    this.authService.logout(); // Perform logout logic (e.g., clear tokens, user data)
+    this.router.navigate(['/login']); // Redirect to the login page
+  }
   // Added missing methods that were in HTML
   onUserTypeChange() {
     this.resetForms();

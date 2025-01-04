@@ -9,10 +9,18 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { EventsService, Event } from '../events.service.service';
 import { AlertController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
+
 
 interface Section {
   id: number;
   name: string;
+}
+interface ProfileData {
+  name: string;
+  username: string;
+  password: string;
+  status: 'active' | 'inactive';
 }
 
 @Component({
@@ -25,6 +33,26 @@ interface Section {
 })
 
 export class FacultyPage implements OnInit {
+  
+
+    // Add these properties
+    showProfileModal = false;
+    isEditing = false;
+    profile = {
+      name: '',
+      username: '',
+      password: '',
+      status: 'active'
+    };
+
+  // profile
+  showProfileForm = false;
+  profileData: ProfileData = {
+    name: '',
+    username: '',
+    password: '',
+    status: 'active'
+  };  
 
   facultyName: string | null = null;
 
@@ -43,12 +71,101 @@ export class FacultyPage implements OnInit {
     section_id: 0
   };
 
+
+  events1: any[] = [];
+  eventComments: { [key: number]: any[] } = {};
+  newComments: { [key: number]: string } = {};
+  expandedEvents: Set<number> = new Set();
+  userId: string | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private eventsService: EventsService,
-    private alertController: AlertController
-  ) { }
+    private alertController: AlertController,
+    private http: HttpClient,
+    private toastController: ToastController,
+    private router: Router
+  ) { 
+    this.userId = localStorage.getItem('user_id');
+  }
+
+
+  logout() {
+    this.authService.logout();
+    console.log("logout")
+    // this.router.navigate(['/login']); // Redirect to the login page after logout
+  }
+
+  // COMMENTS
+  // New methods for comments
+  toggleComments(eventId: number) {
+    if (this.expandedEvents.has(eventId)) {
+      this.expandedEvents.delete(eventId);
+    } else {
+      this.expandedEvents.add(eventId);
+      this.loadComments(eventId);
+    }
+  }
+
+  loadComments(eventId: number) {
+    this.http.get(`http://localhost:3000/api/comments/${eventId}`).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.eventComments[eventId] = response.data;
+        }
+      },
+      error: async (error) => {
+        const toast = await this.toastController.create({
+          message: 'Error loading comments',
+          duration: 2000,
+          position: 'bottom'
+        });
+        toast.present();
+      }
+    });
+  }
+
+  async addComment(eventId: number) {
+    if (!this.newComments[eventId]?.trim() || !this.userId) {
+      return;
+    }
+
+    const commentData = {
+      event_id: eventId,
+      user_id: this.userId,
+      comment_text: this.newComments[eventId]
+    };
+
+    this.http.post('http://localhost:3000/api/comments', commentData).subscribe({
+      next: async (response: any) => {
+        if (response.success) {
+          this.loadComments(eventId);
+          this.newComments[eventId] = '';
+          const toast = await this.toastController.create({
+            message: 'Comment added successfully',
+            duration: 2000,
+            position: 'bottom'
+          });
+          toast.present();
+        }
+      },
+      error: async (error) => {
+        const toast = await this.toastController.create({
+          message: 'Error adding comment',
+          duration: 2000,
+          position: 'bottom'
+        });
+        toast.present();
+      }
+    });
+  }
+
+
+
+
+
+
 
   // Add to FacultyPage class ARCHIVEEEEE
   archivedEvents: Event[] = [];
@@ -238,5 +355,101 @@ export class FacultyPage implements OnInit {
 
   cancelEdit() {
     this.editingEvent = null;
+  }
+
+
+
+  async updateProfile() {
+    const userId = this.authService.getUserId();
+    if (userId) {
+      this.http.put(`http://localhost:3000/api/faculty/profile/${userId}`, this.profileData).subscribe({
+        next: async (response: any) => {
+          if (response.success) {
+            const toast = await this.toastController.create({
+              message: 'Profile updated successfully',
+              duration: 2000,
+              position: 'bottom'
+            });
+            toast.present();
+            this.showProfileForm = false;
+            
+            // Update the displayed faculty name if it changed
+            if (this.profileData.name !== this.facultyName) {
+              this.facultyName = this.profileData.name;
+              localStorage.setItem('faculty_name', this.profileData.name);
+            }
+          }
+        },
+        error: async (error) => {
+          const toast = await this.toastController.create({
+            message: 'Error updating profile',
+            duration: 2000,
+            position: 'bottom'
+          });
+          toast.present();
+        }
+      });
+    }
+  }
+  // Add a button/method to open the modal
+  openProfile() {
+    const userId = this.authService.getUserId();
+    if (userId) {
+      this.http.get(`http://localhost:3000/api/faculty/profile/${userId}`).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.profile = {
+              name: response.data.name,
+              username: response.data.username,
+              password: '', // Don't show the actual password
+              status: response.data.status
+            };
+            this.showProfileModal = true;
+            this.isEditing = false;
+          }
+        },
+        error: async (error) => {
+          const toast = await this.toastController.create({
+            message: 'Error loading profile',
+            duration: 2000,
+            position: 'bottom'
+          });
+          toast.present();
+        }
+      });
+    }
+  }
+
+  async saveProfile() {
+    const userId = this.authService.getUserId();
+    if (userId) {
+      this.http.put(`http://localhost:3000/api/faculty/profile/${userId}`, this.profile).subscribe({
+        next: async (response: any) => {
+          if (response.success) {
+            const toast = await this.toastController.create({
+              message: 'Profile updated successfully',
+              duration: 2000,
+              position: 'bottom'
+            });
+            toast.present();
+            this.isEditing = false;
+            
+            // Update the displayed faculty name if it changed
+            if (this.profile.name !== this.facultyName) {
+              this.facultyName = this.profile.name;
+              localStorage.setItem('faculty_name', this.profile.name);
+            }
+          }
+        },
+        error: async (error) => {
+          const toast = await this.toastController.create({
+            message: 'Error updating profile',
+            duration: 2000,
+            position: 'bottom'
+          });
+          toast.present();
+        }
+      });
+    }
   }
 }

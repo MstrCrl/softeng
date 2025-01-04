@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { OverlayEventDetail } from '@ionic/core/components';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -29,10 +31,16 @@ export class HomePage implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private router: Router, 
+    private authService: AuthService,
   ) { this.userId = localStorage.getItem('user_id');
   }
-
+  
+  logout() {
+    this.showProfileModal = false;
+    this.authService.logout(); 
+  }
   ngOnInit() {
     this.getSections();
     this.showAllEvents();
@@ -42,6 +50,8 @@ export class HomePage implements OnInit {
       this.loadProfile();
     }
   }
+
+  
 
   // Add these new methods
   toggleComments(eventId: number) {

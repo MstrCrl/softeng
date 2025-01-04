@@ -133,6 +133,91 @@ app.put('/api/student-profile/:userId', (req, res) => {
   });
 });
 
+// faculty profile
+// Get faculty profile
+app.get('/api/faculty/profile/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const query = `
+    SELECT f.name, f.status, u.username
+    FROM faculty f
+    JOIN users u ON f.user_id = u.id
+    WHERE u.id = ?
+  `;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: 'Database error occurred',
+        error: err.message
+      });
+    }
+
+    if (results.length > 0) {
+      res.json({
+        success: true,
+        data: results[0]
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+  });
+});
+
+// Update faculty profile
+app.put('/api/faculty/profile/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const { name, username, password, status } = req.body;
+
+  db.beginTransaction(async (err) => {
+    if (err) throw err;
+
+    try {
+      // Update faculty table
+      await db.promise().query(
+        'UPDATE faculty SET name = ?, status = ? WHERE user_id = ?',
+        [name, status, userId]
+      );
+
+      // Update users table
+      const userUpdate = password
+        ? 'UPDATE users SET username = ?, password = ? WHERE id = ?'
+        : 'UPDATE users SET username = ? WHERE id = ?';
+      const userParams = password
+        ? [username, password, userId]
+        : [username, userId];
+
+      await db.promise().query(userUpdate, userParams);
+
+      db.commit((err) => {
+        if (err) {
+          return db.rollback(() => {
+            throw err;
+          });
+        }
+        res.json({
+          success: true,
+          message: 'Profile updated successfully'
+        });
+      });
+    } catch (error) {
+      return db.rollback(() => {
+        res.status(500).json({
+          success: false,
+          message: 'Error updating profile',
+          error: error.message
+        });
+      });
+    }
+  });
+});
+
+
+
+
 
 
 

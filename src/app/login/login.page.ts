@@ -24,24 +24,20 @@ export class LoginPage {
 
   login() {
     console.log('Login method triggered');
-    this.authService.login(this.username, this.password).subscribe(
-      (response) => {
+    this.authService.login(this.username, this.password).subscribe({
+      next: (response) => {
         if (response.success) {
           console.log('Login successful, role:', response.role);
           console.log('Faculty ID:', response.faculty_id);
-          
-          if (response.role === 'student') 
-          {
+    
+          // Navigate to appropriate page based on role
+          if (response.role === 'student') {
             this.router.navigate(['/home']);
-          }
-          else if (response.role === 'admin') {
+          } else if (response.role === 'admin') {
             this.router.navigate(['/admin']);
-          }
-          else 
-          {
-            // Pass faculty_id as a query parameter
+          } else if (response.role === 'faculty') {
             this.router.navigate(['/faculty'], {
-              queryParams: { id: response.faculty_id }
+              queryParams: { id: response.faculty_id },
             });
           }
         } else {
@@ -49,11 +45,11 @@ export class LoginPage {
           alert('Invalid credentials');
         }
       },
-      (error) => {
+      error: (error) => {
         console.error('Login error:', error);
         this.errorMessage = 'An error occurred during login';
         alert('Login error occurred');
-      }
-    );
+      },
+    });    
   }
 }
