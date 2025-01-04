@@ -1,0 +1,62 @@
+<!-- edit-profile.component.html -->
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="isEditing = !isEditing" *ngIf="!isEditing">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="saveProfile()" *ngIf="isEditing">
+        <ion-icon name="save-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item>
+      <ion-label position="stacked">Name</ion-label>
+      <ion-input
+        [readonly]="!isEditing"
+        [(ngModel)]="profile.name"
+        placeholder="Enter your name"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Section</ion-label>
+      <ion-select
+        [disabled]="!isEditing"
+        [(ngModel)]="profile.section_id"
+        placeholder="Select section"
+      >
+        <ion-select-option *ngFor="let section of sections" [value]="section.id">
+          BSCS {{ section.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Username</ion-label>
+      <ion-input
+        [readonly]="!isEditing"
+        [(ngModel)]="profile.username"
+        placeholder="Enter username"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Password</ion-label>
+      <ion-input
+        type="password"
+        [readonly]="!isEditing"
+        [(ngModel)]="profile.password"
+        placeholder="Enter password"
+      ></ion-input>
+    </ion-item>
+  </ion-list>
+</ion-content>

@@ -65,6 +65,128 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+
+// HOME PAGE SA PROFILE
+// Update these endpoints in your server.js
+// Add these endpoints to your server.js
+
+// Endpoint to get student profile
+// Endpoint to get student profile
+app.get('/api/student-profile/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const query = `
+    SELECT s.*, u.username, u.password, sec.name as section_name, sec.id as section_id 
+    FROM students s 
+    JOIN users u ON s.user_id = u.id 
+    JOIN sections sec ON s.section_id = sec.id 
+    WHERE s.user_id = ?`;
+
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Database error', error: err.message });
+    }
+    if (result.length > 0) {
+      res.json({ success: true, data: result[0] });
+    } else {
+      res.status(404).json({ success: false, message: 'Student not found' });
+    }
+  });
+});
+
+// Endpoint to update student profile
+app.put('/api/student-profile/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const { name, section_id, username, password } = req.body;
+
+  // Start a transaction
+  db.beginTransaction(async (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Transaction error', error: err.message });
+    }
+
+    try {
+      // Update users table
+      await db.promise().query(
+        'UPDATE users SET username = ?, password = ? WHERE id = ?',
+        [username, password, userId]
+      );
+
+      // Update students table
+      await db.promise().query(
+        'UPDATE students SET name = ?, section_id = ? WHERE user_id = ?',
+        [name, section_id, userId]
+      );
+
+      // Commit transaction
+      db.commit((err) => {
+        if (err) {
+          throw err;
+        }
+        res.json({ success: true, message: 'Profile updated successfully' });
+      });
+    } catch (error) {
+      // Rollback on error
+      db.rollback(() => {
+        res.status(500).json({ success: false, message: 'Update failed', error: error.message });
+      });
+    }
+  });
+});
+
+
+
+
+// COMMENT 
+// COMMENT
+// COMMENT
+// Get comments for an event
+app.get('/api/comments/:eventId', (req, res) => {
+  const eventId = req.params.eventId;
+  const query = `
+    SELECT c.*, u.username, s.name as student_name 
+    FROM comments c
+    JOIN users u ON c.user_id = u.id
+    LEFT JOIN students s ON u.id = s.user_id
+    WHERE c.event_id = ?
+    ORDER BY c.created_at DESC`;
+
+  db.query(query, [eventId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error fetching comments', 
+        error: err.message 
+      });
+    }
+    res.json({ success: true, data: result });
+  });
+});
+
+// Add a new comment
+app.post('/api/comments', (req, res) => {
+  const { event_id, user_id, comment_text } = req.body;
+  
+  const query = 'INSERT INTO comments (event_id, user_id, comment_text) VALUES (?, ?, ?)';
+  
+  db.query(query, [event_id, user_id, comment_text], (err, result) => {
+    if (err) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error adding comment', 
+        error: err.message 
+      });
+    }
+    res.json({ 
+      success: true, 
+      message: 'Comment added successfully', 
+      data: { id: result.insertId } 
+    });
+  });
+});
+
+
+
+
 // New endpoint to get faculty events
 app.get('/api/faculty-events/:facultyId', (req, res) => {
   const facultyId = req.params.facultyId;

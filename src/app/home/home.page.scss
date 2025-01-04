@@ -67,3 +67,44 @@ ion-content {
     font-weight: bold;
   }
 }
+/* Add these styles to your home.page.scss */
+
+.comments-section {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.comments-container {
+  margin-top: 8px;
+}
+
+.comment-item {
+  --padding-start: 16px;
+  --min-height: auto;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.comment-text {
+  font-size: 14px;
+  color: var(--ion-color-dark);
+  margin: 4px 0;
+}
+
+.comment-time {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+.comment-input {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  margin-top: 8px;
+}
