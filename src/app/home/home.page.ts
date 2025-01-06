@@ -172,23 +172,23 @@ export class HomePage implements OnInit {
       this.loadProfile();
     }
   }
-
+ 
   // Existing methods remain the same
   getSections() {
-    this.http.get('http://localhost/acechedule/sections.php').subscribe((response) => {
+    this.http.get('http://localhost:3000/api/sections').subscribe((response) => {
       this.sections = response;
     });
   }
-
+  
   showAllEvents() {
-    this.http.get('http://localhost/acechedule/events.php').subscribe((response) => {
+    this.http.get('http://localhost:3000/api/events').subscribe((response) => {
       this.events = response;
       this.selectedSection = null;
     });
   }
-
+  
   showEventsBySection(sectionId: number) {
-    this.http.get(`http://localhost/acechedule/events.php?section_id=${sectionId}`).subscribe((response) => {
+    this.http.get(`http://localhost:3000/api/events?section_id=${sectionId}`).subscribe((response) => {
       this.events = response;
     });
   }

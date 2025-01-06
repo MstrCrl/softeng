@@ -1,13 +1,18 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Welcome, {{ facultyName }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="openProfile()">
-        <ion-icon name="person-circle-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; font-size: 20px;">
+      <span style="text-align: left; margin-left: 16px;">
+        Welcome, {{ facultyName }}
+      </span>
+      <ion-buttons slot="end" style="margin-right: 16px;">
+        <ion-button (click)="openProfile()">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-header>
+ 
 
 <ion-content class="ion-padding">
   <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange($event)" class="padding-sa-baba">

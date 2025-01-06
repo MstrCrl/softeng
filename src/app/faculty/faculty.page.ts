@@ -55,7 +55,7 @@ export class FacultyPage implements OnInit {
   };  
 
   facultyName: string | null = null;
-
+  
   facultyId: number | null = null;
   events: Event[] = [];
   showAddEventForm = false;
@@ -67,7 +67,7 @@ export class FacultyPage implements OnInit {
     event_name: '',
     date: '',
     faculty_id: 0, // This will be set when adding
-    student_name: '',
+    student_name: 'All',
     section_id: 0
   };
 

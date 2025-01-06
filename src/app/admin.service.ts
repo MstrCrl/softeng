@@ -11,6 +11,7 @@ export interface User {
   name: string;
   section_id?: number;
   section_name?: string;
+  faculty_id?: number;
 }
 
 export interface NewStudent {
@@ -70,7 +71,14 @@ export class AdminService {
   }
 
   updateEventAsAdmin(eventId: number, event: Partial<Event>): Observable<any> {
-    return this.http.put(`${this.baseUrl}/admin/events/${eventId}`, event);
+    // Use the regular events endpoint instead of admin/events
+    return this.http.put(`${this.baseUrl}/events/${eventId}`, {
+      event_name: event.event_name,
+      date: event.date,
+      student_name: event.student_name,
+      section_id: event.section_id,
+      faculty_id: 1 // Always use Program Chair's faculty ID (assuming it's 1)
+    });
   }
 
   deleteEventAsAdmin(eventId: number): Observable<any> {

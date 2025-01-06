@@ -11,7 +11,7 @@
         <ion-icon name="log-out-outline"></ion-icon>
         
       </ion-button>
-    </ion-buttons>
+    </ion-buttons> 
   </ion-toolbar>
 </ion-header>
 
@@ -206,9 +206,9 @@
               </ion-item>
               <ion-item>
                 <ion-label position="floating">Faculty</ion-label>
-                <ion-select [(ngModel)]="editingEvent.faculty_id">
-                  <ion-select-option *ngFor="let user of facultyUsers" [value]="user.user_id">
-                    {{user.name}}
+                <ion-select [(ngModel)]="editingEvent.faculty_id" disabled>
+                  <ion-select-option *ngFor="let faculty of facultyUsers" [value]="faculty.faculty_id">
+                    {{faculty.name}}
                   </ion-select-option>
                 </ion-select>
               </ion-item>
@@ -218,7 +218,7 @@
               </ion-item>
               <ion-item>
                 <ion-label position="floating">Section</ion-label>
-                <ion-select [(ngModel)]="editingEvent.section_id">
+                <ion-select [(ngModel)]="editingEvent.section_id" >
                   <ion-select-option *ngFor="let section of sections" [value]="section.id">
                     {{section.name}}
                   </ion-select-option>

@@ -243,14 +243,23 @@ export class AdminPage implements OnInit {
 
   async updateEvent() {
     if (this.editingEvent) {
-      this.adminService.updateEventAsAdmin(this.editingEvent.id, this.editingEvent).subscribe(
+      // Ensure we're using the Program Chair's faculty_id
+      const updatedEvent: Event = {
+        ...this.editingEvent,
+        faculty_id: 1 // Program Chair's faculty ID
+      };
+
+      this.adminService.updateEventAsAdmin(updatedEvent.id, updatedEvent).subscribe(
         response => {
           if (response.success) {
             this.loadEvents();
             this.editingEvent = null;
           }
         },
-        error => console.error('Error updating event:', error)
+        error => {
+          console.error('Error updating event:', error);
+          this.presentErrorAlert('Failed to update event. Please try again.');
+        }
       );
     }
   }

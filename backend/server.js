@@ -66,6 +66,54 @@ app.post('/api/login', (req, res) => {
 });
 
 
+// 
+// 
+// HOME
+// Sections endpoint
+app.get('/api/sections', (req, res) => {
+  const query = 'SELECT * FROM sections';
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching sections:', err);
+      res.status(500).json({ error: 'Error fetching sections' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// Events endpoints
+app.get('/api/events', (req, res) => {
+  const sectionId = req.query.section_id;
+  let query = `
+    SELECT e.id, e.event_name, e.date, f.name AS faculty_name, s.name AS section_name
+    FROM events e
+    LEFT JOIN faculty f ON e.faculty_id = f.id
+    LEFT JOIN sections s ON e.section_id = s.id
+  `;
+  
+  let queryParams = [];
+  
+  if (sectionId) {
+    query += ' WHERE e.section_id = ?';
+    queryParams.push(sectionId);
+  }
+  
+  db.query(query, queryParams, (err, results) => {
+    if (err) {
+      console.error('Error fetching events:', err);
+      res.status(500).json({ error: 'Error fetching events' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+
+
+
+
 // HOME PAGE SA PROFILE
 // Update these endpoints in your server.js
 // Add these endpoints to your server.js
@@ -616,17 +664,51 @@ app.post('/api/admin/events', (req, res) => {
   });
 });
 
-app.put('/api/admin/events/:eventId', (req, res) => {
+// Update event endpoint in server.js
+app.put('/api/events/:eventId', (req, res) => {
   const eventId = req.params.eventId;
-  const { event_name, date, faculty_id, student_name, section_id } = req.body;
-  const query = 'UPDATE events SET event_name = ?, date = ?, faculty_id = ?, student_name = ?, section_id = ? WHERE id = ?';
+  const { event_name, date, student_name, section_id, faculty_id } = req.body;
   
-  db.query(query, [event_name, date, faculty_id, student_name, section_id, eventId], (err) => {
+  // First verify the faculty exists
+  db.query('SELECT id FROM faculty WHERE id = ?', [faculty_id], (err, facultyResult) => {
     if (err) {
-      console.error('Error updating event:', err);
-      return res.status(500).json({ success: false, message: 'Error updating event' });
+      console.error('Error checking faculty:', err);
+      return res.status(500).json({ success: false, message: 'Error checking faculty' });
     }
-    res.json({ success: true, message: 'Event updated successfully' });
+
+    if (facultyResult.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid faculty ID' 
+      });
+    }
+
+    // If faculty exists, proceed with update
+    const query = `
+      UPDATE events 
+      SET event_name = ?, 
+          date = ?, 
+          student_name = ?, 
+          section_id = ?,
+          faculty_id = ?
+      WHERE id = ?
+    `;
+    
+    db.query(
+      query, 
+      [event_name, date, student_name, section_id, faculty_id, eventId], 
+      (updateErr) => {
+        if (updateErr) {
+          console.error('Error updating event:', updateErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Error updating event',
+            error: updateErr.message 
+          });
+        }
+        res.json({ success: true, message: 'Event updated successfully' });
+      }
+    );
   });
 });
 
